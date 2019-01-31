@@ -1,22 +1,22 @@
 
 # distributed algorithms, n.dulay, 25 jan 19
 # coursework 1, broadcast algorithms
-# Makefile, v2 
+# Makefile, v2
 
 VERSION  = 1
 PEERS    = 5
 
 # call main (for non-docker single node), main_net (for docker), main_ssh (for lan ssh)
-MAIN     = Broadcasting.main
-MAIN_NET = Broadcasting.main_net
-MAIN_SSH = Broadcasting.main_ssh
+MAIN     = Broadcast1.main
+MAIN_NET = Broadcast1.main_net
+MAIN_SSH = Broadcast1.main_ssh
 
 PROJECT  = da347
 NETWORK  = $(PROJECT)_network
 
 LOCAL	 = mix run --no-halt -e $(MAIN) $(VERSION) $(PEERS)
 COMPOSE  = MAIN=$(MAIN_NET) VERSION=$(VERSION) PEERS=$(PEERS) docker-compose -p $(PROJECT)
-SSH      = MAIN=$(MAIN_SSH) VERSION=$(VERSION) PEERS=$(PEERS) 
+SSH      = MAIN=$(MAIN_SSH) VERSION=$(VERSION) PEERS=$(PEERS)
 
 # non-docker compile and run
 compile:
@@ -63,14 +63,14 @@ ssh_show:
 	$(SSH) ./ssh.sh show
 
 # more docker commands
-up:	
-	$(COMPOSE) up 
+up:
+	$(COMPOSE) up
 
 down:
 	$(COMPOSE) down
 	@make show
 
-kill:  
+kill:
 	docker rm -f `docker ps -a -q`
 	docker network rm $(NETWORK)
 
@@ -78,13 +78,13 @@ show:
 	@echo ----------------------
 	@make ps
 	@echo ----------------------
-	@make network 
+	@make network
 
 show2:
 	@echo ----------------------
 	@make ps2
 	@echo ----------------------
-	@make network 
+	@make network
 
 ps:
 	docker ps -a --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}'
@@ -99,8 +99,7 @@ inspect:
 	docker network inspect $(NETWORK)
 
 netrm:
-	docker network rm $(NETWORK) 
+	docker network rm $(NETWORK)
 
 conrm:
 	docker rm $(ID)
-
