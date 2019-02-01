@@ -1,9 +1,9 @@
-defmodule Broadcast.MixProject do
+defmodule Broadcast2.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :broadcast,
+      app: :broadcast2,
       version: "0.1.0",
       elixir: "~> 1.8",
       start_permanent: Mix.env() == :prod,

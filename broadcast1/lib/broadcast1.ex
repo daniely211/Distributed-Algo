@@ -5,16 +5,21 @@ defmodule Broadcast1 do
     args = for arg <- System.argv, do: String.to_integer(arg)
     version = Enum.at(args, 0)
     num_peers = Enum.at(args, 1)
-    peers = Enum.map(0..num_peers-1, fn x -> spawn(Peer, :start, [x]) end)
+    peers = Enum.map(0..num_peers-1, fn x -> spawn(Peer, :start, [x, num_peers]) end)
+    Enum.map(peers, fn(peer) ->
+      send peer, { :peers, peers }
+    end)
     if version == 1 do
-      IO.puts "Broadcast version 1"
+      IO.puts "Broadcast1 version 1"
       Enum.map(peers, fn(peer) ->
-        send peer, { :peers, peers }
+        send peer, { :broadcast, 1000, 3000}
       end)
+    end
 
+    if version == 2 do
+      IO.puts "Broadcast1 version 2"
       Enum.map(peers, fn(peer) ->
-        send peer, { :broadcast, 1000 }
-        Process.send_after(peer, { :timeout }, 3000)
+        send peer, { :broadcast, 10_000_000, 3000}
       end)
     end
     
@@ -34,7 +39,8 @@ defmodule Broadcast1 do
 
     Enum.map(peers, fn(peer) ->
       send peer, { :broadcast, 1000 }
-      
+      # This still doesnt work on docker?!
+      Process.send_after(peer, {:timeout}, 3000)
     end)
   end
 

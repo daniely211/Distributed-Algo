@@ -7,8 +7,6 @@ defmodule Sender do
       send recipient_pid, { :received, sender_index } # send the message to the recipient
       send sender_pid, { :sent, recipient_index } # tell the parent the message has been sent
       start(sender_pid, recipient_pid, sender_index, recipient_index, send_total - 1)
-    # else
-    #   send sender_pid, { :done } # tell the parent all the messages have been sent
     end
   end
 end

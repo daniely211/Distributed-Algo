@@ -4,17 +4,17 @@
 # Makefile, v2
 
 VERSION = 1
-PEERS = 5
+PEERS = 6
 
 # call main (for non-docker single node), main_net (for docker), main_ssh (for lan ssh)
-MAIN     = Broadcast1.main
-MAIN_NET = Broadcast1.main_net
-MAIN_SSH = Broadcast1.main_ssh
+MAIN     = Broadcast2.main
+MAIN_NET = Broadcast2.main_net
+MAIN_SSH = Broadcast2.main_ssh
 
 PROJECT  = da347
 NETWORK  = $(PROJECT)_network
 
-LOCAL1	 = mix run --no-halt -e $(MAIN) $(VERSION) $(PEERS)
+LOCAL	 = mix run --no-halt -e $(MAIN) $(VERSION) $(PEERS)
 COMPOSE  = MAIN=$(MAIN_NET) VERSION=$(VERSION) PEERS=$(PEERS) docker-compose -p $(PROJECT)
 SSH      = MAIN=$(MAIN_SSH) VERSION=$(VERSION) PEERS=$(PEERS)
 
@@ -23,7 +23,7 @@ compile:
 	mix compile
 
 run:
-	$(LOCAL1)
+	$(LOCAL)
 	@echo ----------------------
 
 clean:
