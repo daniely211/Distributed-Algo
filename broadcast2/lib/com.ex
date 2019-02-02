@@ -26,7 +26,7 @@ defp broadcast(num_peers, pl_pid, max_broadcast, num_broadcast, self_index, reci
       # we have already sent enough messages to this recipient index, move to the next one
       if recipient_index + 1 > num_peers - 1 do
         # we have sent enough messages to everyone stop.
-        print_message("Peers #{self_index}:", sent, received, 0)
+        print_message("Peer #{self_index}:", sent, received, 0)
       else
         broadcast(num_peers, pl_pid, max_broadcast, 1, self_index, recipient_index + 1, timeout, sent, received)
       end
@@ -51,7 +51,7 @@ defp broadcast(num_peers, pl_pid, max_broadcast, num_broadcast, self_index, reci
       broadcast(num_peers, pl_pid, max_broadcast, num_broadcast, self_index, recipient_index, timeout, sent, new_received)
     after 
       timeout ->
-      print_message("Peers #{self_index}:", sent, received, 0)
+      print_message("Peer #{self_index}:", sent, received, 0)
     end
   end
 
