@@ -4,7 +4,7 @@
 # Makefile, v2
 
 VERSION = 1
-PEERS = 6
+PEERS = 5
 
 # call main (for non-docker single node), main_net (for docker), main_ssh (for lan ssh)
 MAIN     = Broadcast2.main

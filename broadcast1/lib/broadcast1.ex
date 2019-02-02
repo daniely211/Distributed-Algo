@@ -9,6 +9,7 @@ defmodule Broadcast1 do
     Enum.map(peers, fn(peer) ->
       send peer, { :peers, peers }
     end)
+
     if version == 1 do
       IO.puts "Broadcast1 version 1"
       Enum.map(peers, fn(peer) ->

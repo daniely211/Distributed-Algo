@@ -5,14 +5,13 @@ defmodule Peer do
   def start(index, num_peers) do
     sent = List.duplicate(0, num_peers)
     received = List.duplicate(0, num_peers)
-
+    pid = self()
     receive do
-      { :peers, peers } -> listen(peers, index, sent, received, 0)
+      { :peers, peers } -> listen_broadcast(peers, index, sent, received)
     end
   end
 
   defp print_message(string, sent, received, cnt) do
-
     if cnt < length(sent) do
       str = string <> "{#{inspect Enum.at(sent, cnt)}, #{inspect Enum.at(received, cnt)}},"
       print_message(str, sent, received, cnt + 1)
@@ -20,35 +19,49 @@ defmodule Peer do
       msg = string |> String.slice(0..-2)
       IO.puts msg
     end
-    # IO.puts "Peers#{index}:{#{inspect Enum.at(sent, 0)}, #{inspect Enum.at(received, 0)}},{#{inspect Enum.at(sent, 1)}, #{inspect Enum.at(received, 1)}},{#{inspect Enum.at(sent, 2)}, #{inspect Enum.at(received, 2)}},{#{inspect Enum.at(sent, 3)}, #{inspect Enum.at(received, 3)}},{#{inspect Enum.at(sent, 4)}, #{inspect Enum.at(received, 4)}}"
   end
 
-  defp listen(peers, index, sent, received, num_completed) do
-    pid = self()
-    # if num_completed == length(peers) do
-    #   print_message(sent, received, index)
-    # else
-      receive do
-        { :broadcast, max_broadcasts, timeout } ->
-          broadcast(peers, max_broadcasts, index, pid)
-          Process.send_after(self(), {:timeout}, timeout)
-          listen(peers, index, sent, received, num_completed)
-        { :received, sender_index } ->
-          # Received a message from sender
-          new_received = List.update_at(received, sender_index, fn x -> x + 1 end)
-          listen(peers, index, sent, new_received, num_completed)
-        { :sent, recipient_index } ->
-          # Acknowledged a sent
-          new_sent = List.update_at(sent, recipient_index, fn x -> x + 1 end)
-          listen(peers, index, new_sent, received, num_completed)
-        { :timeout } -> print_message("Peers #{index}:", sent, received, 0)
-        # { :done } -> listen(peers, index, sent, received, num_completed + 1) #should be 5 sender
+  defp listen_broadcast(peers, index, sent, received) do
+    receive do
+      { :broadcast, max_broadcasts, timeout} ->
+        broadcast(peers, max_broadcasts, 1, index, 0, timeout, sent, received)
+    end
+  end
+
+  defp broadcast(peers, max_broadcast, num_broadcast, self_index, recipient_index, timeout, sent, received) do
+
+    # broadcast needs to be in a send and receive loop
+    if num_broadcast > max_broadcast do
+      # we have already sent enough messages to this recipient index, move to the next one
+      if recipient_index + 1 > length(peers) - 1 do
+        # we have sent enough messages to everyone stop.
+        print_message("Peers #{self_index}:", sent, received, 0)
+      else
+        broadcast(peers, max_broadcast, 1, self_index, recipient_index + 1, timeout, sent, received)
       end
-    # end
+    else
+      # pid = self()
+      # IO.puts "Sending a message to a peer! #{inspect pid}"
+      send Enum.at(peers, recipient_index), {:received, self_index} # send the message to the recipient
+      # Update the sent list
+      new_sent = List.update_at(sent, recipient_index, fn x -> x + 1 end)
+      listen(peers, max_broadcast, num_broadcast + 1, self_index, recipient_index, timeout, new_sent, received)
+    end
   end
 
-  defp broadcast(peers, max_broadcasts, index, pid) do
-    n = length(peers) - 1 
-    Enum.map(0..n, fn recipient_index -> spawn(Sender, :start, [pid, Enum.at(peers, recipient_index), index, recipient_index, max_broadcasts]) end)
+  defp listen(peers, max_broadcast, num_broadcast, self_index, recipient_index, timeout, sent, received) do
+    # pid = self()
+    receive do
+    { :received, sender_index } ->
+        # IO.puts "received a message from a peer! #{inspect pid}"
+      # Received a message from sender
+      new_received = List.update_at(received, sender_index, fn x -> x + 1 end)
+      broadcast(peers, max_broadcast, num_broadcast, self_index, recipient_index, timeout, sent, new_received)
+    after 
+      timeout ->
+      print_message("Peers #{self_index}:", sent, received, 0)
+    end
+  
   end
+
 end

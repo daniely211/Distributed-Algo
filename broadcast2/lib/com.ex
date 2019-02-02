@@ -8,34 +8,53 @@ defmodule Com do
     received = List.duplicate(0, num_peers)
     # Wait for a bind message for the pl 
     receive do
-      {:pl_bind, pl_pid} -> listen(pl_pid, num_peers, index, sent, received)
+      {:pl_bind, pl_pid} -> listen_instruction(pl_pid, num_peers, index, sent, received)
     end
   end
 
-  def listen(pl_pid, num_peers, index, sent, received) do
+  def listen_instruction(pl_pid, num_peers, index, sent, received) do
     receive do
       { :broadcast, max_broadcasts, timeout } ->
-        # create N sender to send the PL max_broadcasts send requests.
-        broadcast(num_peers, max_broadcasts, pl_pid)
-        # send a time out to myself
-        Process.send_after(self(), {:timeout}, timeout)
-        listen(pl_pid, num_peers, index, sent, received)
-      { :received, sender_index } ->
-        # PL passes the message to COM
-        # IO.puts "Received a message from " <> "#{inspect sender_index}"
-        new_received = List.update_at(received, sender_index, fn x -> x + 1 end)
-        listen(pl_pid, num_peers, index, sent, new_received)
-      { :sent, recipient_index } ->
-        # Acknowledged a sent from PL
-        new_sent = List.update_at(sent, recipient_index, fn x -> x + 1 end)
-        listen(pl_pid, num_peers, index, new_sent, received)
-      { :timeout } -> print_message("Peers #{index}:", sent, received, 0)
+        broadcast(num_peers, pl_pid, max_broadcasts, 1, index, 0, timeout, sent, received)
     end
   end
 
-  defp broadcast(num_peers, max_broadcasts, pl_pid) do
-    Enum.map(0..num_peers - 1, fn recipient_index -> spawn(Sender, :start, [recipient_index, max_broadcasts, pl_pid]) end)
+
+defp broadcast(num_peers, pl_pid, max_broadcast, num_broadcast, self_index, recipient_index, timeout, sent, received) do
+    # broadcast needs to be in a send and receive loop
+    if num_broadcast > max_broadcast do
+      # we have already sent enough messages to this recipient index, move to the next one
+      if recipient_index + 1 > num_peers - 1 do
+        # we have sent enough messages to everyone stop.
+        print_message("Peers #{self_index}:", sent, received, 0)
+      else
+        broadcast(num_peers, pl_pid, max_broadcast, 1, self_index, recipient_index + 1, timeout, sent, received)
+      end
+    else
+      # pid = self()
+      # IO.puts "Sending a message to a peer! #{inspect pid}"
+      send pl_pid, {:pl_send, recipient_index} # send the message to the recipient
+      # Update the sent list
+      new_sent = List.update_at(sent, recipient_index, fn x -> x + 1 end)
+      listen(num_peers, pl_pid, max_broadcast, num_broadcast + 1, self_index, recipient_index, timeout, new_sent, received)
+    end
   end
+
+
+  defp listen(num_peers, pl_pid, max_broadcast, num_broadcast, self_index, recipient_index, timeout, sent, received) do
+    # pid = self()
+    receive do
+    { :received, sender_index} ->
+      # IO.puts "received a message from a peer! #{inspect pid}"
+      # Received a message from sender
+      new_received = List.update_at(received, sender_index, fn x -> x + 1 end)
+      broadcast(num_peers, pl_pid, max_broadcast, num_broadcast, self_index, recipient_index, timeout, sent, new_received)
+    after 
+      timeout ->
+      print_message("Peers #{self_index}:", sent, received, 0)
+    end
+  end
+
 
   defp print_message(string, sent, received, cnt) do
     if cnt < length(sent) do
@@ -46,5 +65,9 @@ defmodule Com do
       IO.puts msg
     end
   end
+
+
+
+
 
 end

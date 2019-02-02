@@ -18,9 +18,6 @@ defmodule Pl do
     receive do
       {:pl_send, recipient_index} ->
         recipient = Enum.at(pl_list, recipient_index)
-        if recipient == nil do
-          IO.puts "#{inspect pl_list} at #{inspect recipient_index}"
-        end
         # IO.puts "I am a PL, I need to send to number #{inspect recipient}"
         send recipient, {:pl_deliver, index}
         # IO.puts "Now i inform my COM #{inspect com_pid}"
