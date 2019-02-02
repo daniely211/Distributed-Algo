@@ -9,6 +9,7 @@ defmodule Com do
     # Wait for a bind message from beb
     receive do
       {:beb_bind, beb_pid} -> listen_instruction(beb_pid, self_index, sent, received)
+      {:timeout} -> print_message("Peer #{self_index}:", sent, received, 0)
     end
   end
 
@@ -16,6 +17,7 @@ defmodule Com do
     receive do
       { :broadcast, max_broadcasts, timeout } ->
         broadcast(beb_pid, max_broadcasts, 1, self_index, timeout, sent, received)
+      {:timeout} -> print_message("Peer #{self_index}:", sent, received, 0)
     end
   end
 
@@ -45,6 +47,7 @@ defmodule Com do
       new_received = List.update_at(received, sender_index, fn x -> x + 1 end)
       # broadcast again
       broadcast(beb_pid, max_broadcasts, num_broadcasts, self_index, timeout, sent, new_received)
+    {:timeout} -> print_message("Peer #{self_index}:", sent, received, 0)
     after 
       timeout ->
       print_message("Peer #{self_index}:", sent, received, 0)

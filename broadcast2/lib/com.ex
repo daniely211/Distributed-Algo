@@ -20,7 +20,7 @@ defmodule Com do
   end
 
 
-defp broadcast(num_peers, pl_pid, max_broadcast, num_broadcast, self_index, recipient_index, timeout, sent, received) do
+  defp broadcast(num_peers, pl_pid, max_broadcast, num_broadcast, self_index, recipient_index, timeout, sent, received) do
     # broadcast needs to be in a send and receive loop
     if num_broadcast > max_broadcast do
       # we have already sent enough messages to this recipient index, move to the next one

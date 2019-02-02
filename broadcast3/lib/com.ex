@@ -20,7 +20,7 @@ defmodule Com do
   end
 
 
-defp broadcast(beb_pid, max_broadcasts, num_broadcasts, self_index, timeout, sent, received) do
+  defp broadcast(beb_pid, max_broadcasts, num_broadcasts, self_index, timeout, sent, received) do
     # broadcast needs to be in a send and receive loop
     if num_broadcasts > max_broadcasts do
       print_message("Peer #{self_index}:", sent, received, 0)
