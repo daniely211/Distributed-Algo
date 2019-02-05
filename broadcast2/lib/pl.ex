@@ -18,7 +18,6 @@ defmodule Pl do
     receive do
       {:pl_send, recipient_index} ->
         recipient = Enum.at(pl_list, recipient_index)
-        # IO.puts "I am a PL, I need to send to number #{inspect recipient}"
         send recipient, {:pl_deliver, index}
         listen(pl_list, index, com_pid)
 
