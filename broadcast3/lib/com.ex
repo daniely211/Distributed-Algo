@@ -15,6 +15,7 @@ defmodule Com do
   def listen_instruction(beb_pid, self_index, sent, received) do
     receive do
       { :broadcast, max_broadcasts, timeout } ->
+        Process.send_after(self(), {:timeout}, timeout)
         broadcast(beb_pid, max_broadcasts, 1, self_index, timeout, sent, received)
     end
   end
@@ -22,17 +23,23 @@ defmodule Com do
 
   defp broadcast(beb_pid, max_broadcasts, num_broadcasts, self_index, timeout, sent, received) do
     # broadcast needs to be in a send and receive loop
-    if num_broadcasts > max_broadcasts do
-      print_message("Peer #{self_index}:", sent, received, 0)
-    else
-      # Tell Beb to broadcast!
-      send beb_pid, {:beb_broadcast} 
-      # Update the sent list since we send a beb broadcast, we increase sent for all the peers
-      new_sent = Enum.map(sent, fn x -> x + 1 end)
-      listen(beb_pid, max_broadcasts, num_broadcasts + 1, self_index, timeout, new_sent, received, 1)
+    # pid = self()
+    receive do
+      {:timeout} -> print_message("Peer #{self_index}:", sent, received, 0)
+    after 
+      0 ->
+      if num_broadcasts > max_broadcasts do
+        print_message("Peer #{self_index}:", sent, received, 0)
+      else
+        # Tell Beb to broadcast!
+        # IO.puts "Sending a message to PL! #{inspect pid}, #{inspect beb_pid}" 
+        send beb_pid, {:beb_broadcast} 
+        # Update the sent list since we send a beb broadcast, we increase sent for all the peers
+        new_sent = Enum.map(sent, fn x -> x + 1 end)
+        listen(beb_pid, max_broadcasts, num_broadcasts + 1, self_index, timeout, new_sent, received, 1)
+      end
     end
   end
-
 
   defp listen(beb_pid, max_broadcasts, num_broadcasts, self_index, timeout, sent, received, cnt) do
     # pid = self()
@@ -55,7 +62,6 @@ defmodule Com do
     end
   end
 
-
   defp print_message(string, sent, received, cnt) do
     if cnt < length(sent) do
       str = string <> "{#{inspect Enum.at(sent, cnt)}, #{inspect Enum.at(received, cnt)}},"
@@ -65,9 +71,5 @@ defmodule Com do
       IO.puts msg
     end
   end
-
-
-
-
 
 end

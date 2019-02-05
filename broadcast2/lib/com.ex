@@ -37,7 +37,8 @@ defmodule Com do
     pid = self()
     receive do
       {:timeout} -> print_message("Peer #{self_index}:", sent, received, 0)
-    after 0 ->
+    after 
+      0 ->
       if recipient_index > num_peers - 1 do
         # you have sent to all your peers increment the boradcast by 1
         if num_broadcast + 1 > max_broadcast do
