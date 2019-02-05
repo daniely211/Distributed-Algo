@@ -14,22 +14,24 @@ defmodule Lpl do
     end
   end
 
-  def listen(lpl_list, index, up_stream_pid, reliability) do
+  def listen(lpl_list, self_index, up_stream_pid, reliability) do
     # start listening for send requests
     receive do
-      {:pl_send, recipient_index} ->
+      #LPL uses the recipient Index to find the recipient within the LPL list
+      {:pl_send, recipient_index, message} ->
         recipient = Enum.at(lpl_list, recipient_index)
         # IO.puts "I am a PL, I need to send to number #{inspect recipient}"
         rand_int = :rand.uniform(100)
         if rand_int <= reliability do
-          send recipient, {:pl_deliver, index}
+        # Here LPL changes the pl_deliver to be the self index to let the recipient know who sent it
+          send recipient, {:pl_deliver, self_index, message}
         end
-        listen(lpl_list, index, up_stream_pid, reliability)
-      {:pl_deliver, sender_index} ->
+        listen(lpl_list, self_index, up_stream_pid, reliability)
+      {:pl_deliver, sender_index, message} ->
         # forward the message to com
         # IO.puts "I GOT A MESSAGE! IN PL"
-        send up_stream_pid, {:pl_deliver, sender_index}
-        listen(lpl_list, index, up_stream_pid, reliability)
+        send up_stream_pid, {:pl_deliver, sender_index, message}
+        listen(lpl_list, self_index, up_stream_pid, reliability)
     end
   end
 

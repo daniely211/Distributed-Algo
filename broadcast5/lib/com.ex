@@ -24,15 +24,19 @@ defmodule Com do
 
   defp broadcast(beb_pid, max_broadcasts, num_broadcasts, self_index, timeout, sent, received) do
     # broadcast needs to be in a send and receive loop
-    if num_broadcasts > max_broadcasts do
-      # this case we will keep listening after we are done broadcasting... because we will send more than we listen
-      listen(beb_pid, max_broadcasts, num_broadcasts, self_index, timeout, sent, received)
-    else
-      # Tell Beb to broadcast!
-      send beb_pid, {:beb_broadcast} 
-      # Update the sent list since we send a beb broadcast, we increase sent for all the peers
-      new_sent = Enum.map(sent, fn x -> x + 1 end)
-      listen(beb_pid, max_broadcasts, num_broadcasts + 1, self_index, timeout, new_sent, received)
+    receive do
+      {:timeout} -> print_message("Peer #{self_index}:", sent, received, 0)
+    after 0 ->
+      if num_broadcasts > max_broadcasts do
+        # this case we will keep listening after we are done broadcasting... because we will send more than we listen
+        listen(beb_pid, max_broadcasts, num_broadcasts, self_index, timeout, sent, received)
+      else
+        # Tell Beb to broadcast!
+        send beb_pid, {:beb_broadcast} 
+        # Update the sent list since we send a beb broadcast, we increase sent for all the peers
+        new_sent = Enum.map(sent, fn x -> x + 1 end)
+        listen(beb_pid, max_broadcasts, num_broadcasts + 1, self_index, timeout, new_sent, received)
+      end
     end
   end
 
@@ -48,12 +52,11 @@ defmodule Com do
       # broadcast again
       broadcast(beb_pid, max_broadcasts, num_broadcasts, self_index, timeout, sent, new_received)
     {:timeout} -> print_message("Peer #{self_index}:", sent, received, 0)
-    after 
+    after  
       timeout ->
       print_message("Peer #{self_index}:", sent, received, 0)
     end
   end
-
 
   defp print_message(string, sent, received, cnt) do
     if cnt < length(sent) do
@@ -64,9 +67,5 @@ defmodule Com do
       IO.puts msg
     end
   end
-
-
-
-
 
 end

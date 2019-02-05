@@ -5,7 +5,7 @@ defmodule Peer do
     # when peer start, it will create its Com and PL component 
     com_pid = spawn(Com, :start, [self_index, num_peers])
     beb_pid = spawn(Beb, :start, [com_pid, num_peers])
-    reliability = 50
+    reliability = 0
     lpl_pid = spawn(Lpl, :start, [beb_pid, self_index, reliability])
 
     # Peer must also send Broadcast the the PL pid

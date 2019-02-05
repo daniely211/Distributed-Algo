@@ -5,21 +5,25 @@ defmodule Broadcast4 do
     args = for arg <- System.argv, do: String.to_integer(arg)
     version = Enum.at(args, 0)
     num_peers = Enum.at(args, 1)
+    # Perfect link
+    # Broad cast spawns all the peers
+    peers = Enum.map(0..num_peers-1, fn x -> spawn(Peer, :start, [x, num_peers, self()]) end)
+    pl_list = List.duplicate(0, num_peers)
+    bind_all_pl(num_peers, pl_list)
 
-  
     # This is PL connection
     if version == 1 do
       IO.puts "Broadcast4 version 1"
-      # Perfect link
-      # Broad cast spawns all the peers
-      peers = Enum.map(0..num_peers-1, fn x -> spawn(Peer, :start, [x, num_peers, self()]) end)
-      pl_list = List.duplicate(0, num_peers)
-      bind_all_pl(num_peers, pl_list)
       Enum.map(peers, fn(peer) ->
         send peer, { :broadcast, 1000, 3000}
       end) 
     end
-    
+    if version == 2 do
+      IO.puts "Broadcast4 version 2"
+      Enum.map(peers, fn(peer) ->
+        send peer, { :broadcast, 10_000_000, 3000}
+      end) 
+    end
   end
 
   defp bind_all_pl(binds_left, lpl_list) do
