@@ -9,7 +9,6 @@ defmodule Com do
     # Wait for a bind message from beb
     receive do
       {:erb_bind, erb_pid} -> listen_instruction(erb_pid, self_index, sent, received)
-      {:timeout} -> print_message("Peer #{self_index}:", sent, received, 0)
     end
   end
 
@@ -17,7 +16,9 @@ defmodule Com do
     receive do
       { :broadcast, max_broadcasts, timeout } ->
         broadcast(erb_pid, max_broadcasts, 1, self_index, timeout, sent, received, 0)
-      {:timeout} -> print_message("Peer #{self_index}:", sent, received, 0)
+      {:kill} -> 
+        print_message("Peer #{self_index}:", sent, received, 0)
+        Process.exit(self(), :kill)
     end
   end
 
@@ -25,6 +26,10 @@ defmodule Com do
     # broadcast needs to be in a send and receive loop
     receive do
       {:timeout} -> print_message("Peer #{self_index}:", sent, received, 0)
+      {:kill} -> 
+        print_message("Peer #{self_index}:", sent, received, 0)
+        Process.exit(self(), :kill)
+
     after 0 ->
       if num_broadcasts > max_broadcasts do
         # this case we will keep listening after we are done broadcasting... because we will send more than we listen
@@ -49,7 +54,10 @@ defmodule Com do
       new_received = List.update_at(received, sender_index, fn x -> x + 1 end)
       # broadcast again
       broadcast(erb_pid, max_broadcasts, num_broadcasts, self_index, timeout, sent, new_received, seq_num + 1)
-    # {:timeout} -> print_message("Peer #{self_index}:", sent, received, 0)
+    {:timeout} -> print_message("Peer #{self_index}:", sent, received, 0)
+      {:kill} -> 
+      print_message("Peer #{self_index}:", sent, received, 0)
+      Process.exit(self(), :kill)
     after 
       timeout ->
       print_message("Peer #{self_index}:", sent, received, 0)
