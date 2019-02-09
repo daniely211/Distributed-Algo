@@ -5,7 +5,7 @@ defmodule Peer do
   def start(index, num_peers) do
     sent = List.duplicate(0, num_peers)
     received = List.duplicate(0, num_peers)
-    pid = self()
+    # pid = self()
     receive do
       { :peers, peers } -> listen_broadcast(peers, index, sent, received)
     end
@@ -33,7 +33,7 @@ defmodule Peer do
     receive do
       {:timeout} -> print_message("Peer #{self_index}:", sent, received, 0)
     after 0 ->
-      pid = self()
+      # pid = self()
       # IO.puts "Sending a message from a peer! #{inspect pid}"
       if recipient_index > length(peers) - 1 do
         # you have sent to all your peers increment the boradcast by 1

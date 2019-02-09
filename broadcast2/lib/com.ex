@@ -34,7 +34,7 @@ defmodule Com do
 
   defp broadcast(num_peers, pl_pid, max_broadcast, num_broadcast, self_index, recipient_index, timeout, sent, received) do
     # broadcast needs to be in a send and receive loop
-    pid = self()
+    # pid = self()
     receive do
       {:timeout} -> print_message("Peer #{self_index}:", sent, received, 0)
     after 
@@ -58,7 +58,7 @@ defmodule Com do
 
 
   defp listen(num_peers, pl_pid, max_broadcast, num_broadcast, self_index, recipient_index, timeout, sent, received) do
-    pid = self()
+    # pid = self()
     receive do
     { :received, sender_index} ->
       # IO.puts "received a message from a peer! #{inspect pid}"
