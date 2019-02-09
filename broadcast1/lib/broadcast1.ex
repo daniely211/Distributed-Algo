@@ -23,6 +23,14 @@ defmodule Broadcast1 do
         send peer, { :broadcast, 10_000_000, 3000}
       end)
     end
+
+    if version == 3 do
+      IO.puts "Broadcast1 version 3"
+      Enum.map(peers, fn(peer) ->
+        send peer, { :broadcast, 10, 0}
+      end)
+    end
+
     
   end
 
@@ -57,6 +65,12 @@ defmodule Broadcast1 do
       IO.puts "Broadcast1 version 2"
       Enum.map(peers, fn(peer) ->
         send peer, { :broadcast, 10_000_000, 3000}
+      end)
+    end
+    if version == 3 do
+      IO.puts "Broadcast1 version 3"
+      Enum.map(peers, fn(peer) ->
+        send peer, { :broadcast, 100000, 3000}
       end)
     end
 
