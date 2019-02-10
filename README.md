@@ -1,16 +1,13 @@
-# Distributed-Algorithm course work
+# Distributed-Algorithm Coursework
 
-Our implementations is split into 6 different folders. 
-The make file:
-- Versions refers to the differnt message requests. Version 1 and 2 is always {:broadcast, 1000, 3000} and {:broadcast, 10_000_000, 3000} respectively. Version 3 is the interesting request of our own.
+Our implementations is split into 6 different folders for each task.
 
-- Peers refers to the number of peers spawned in the system.
+Variables in the make file:
+- `VERSION` refers to the different message requests. Version 1 and 2 is always `{ :broadcast, 1000, 3000 }` and `{ :broadcast, 10_000_000, 3000 }` respectively. Version 3 is the interesting request of our own.
 
-Within each implementation folder:
-- "make runall" will run all 3 different version of the implementation locally.
+- `PEERS` refers to the number of peers spawned in the system.
 
-- "make up" will run the version declared in the make file at the top in Docker environment.
+Commands:
+- `make runall` will run all 3 version of the implementation locally.
 
-- To change differnt versions ran in Docker environment, simply change the version count in the make file.
-
-
+- `make up` will run the version declared in the make file at the top in Docker environment.
