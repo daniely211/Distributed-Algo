@@ -3,30 +3,31 @@ defmodule Pl do
 
   def start(up_stream_pid, index) do
     # start the PL by binding the PL component to the COM it is working for.
-    send up_stream_pid, {:pl_bind, self()}
+    send up_stream_pid, { :bind_pl_beb, self() }
+
     # listen for the bind message from Broadcast2 to bind the pl tgt
-    listen_bind(index, up_stream_pid) 
+    listen_bind(index, up_stream_pid)
   end
 
+  # listen for the list of all PLs
   def listen_bind(index, up_stream_pid) do
     receive do
-      {:bind, pl_list} -> listen(pl_list, index, up_stream_pid)
+      { :bind_all_pl, pl_list } -> listen(pl_list, index, up_stream_pid)
     end
   end
 
+  # start listening for send/deliver requests
   def listen(pl_list, index, up_stream_pid) do
     # start listening for send requests
     receive do
-      {:pl_send, recipient_index} ->
+      { :pl_send, recipient_index } ->
         recipient = Enum.at(pl_list, recipient_index)
-        # IO.puts "I am a PL, I need to send to number #{inspect recipient}"
-        send recipient, {:pl_deliver, index}
-        # IO.puts "Now i inform my COM #{inspect up_stream_pid}"
+        send recipient, { :pl_deliver, index }
         listen(pl_list, index, up_stream_pid)
-      {:pl_deliver, sender_index} ->
-        # forward the message to com
-        # IO.puts "I GOT A MESSAGE! IN PL"
-        send up_stream_pid, {:pl_deliver, sender_index}
+
+      { :pl_deliver, sender_index } ->
+        # forward successful delivery message to upstream
+        send up_stream_pid, { :pl_deliver, sender_index }
         listen(pl_list, index, up_stream_pid)
     end
   end

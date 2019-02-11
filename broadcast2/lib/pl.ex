@@ -1,5 +1,6 @@
 # Daniel Yung (lty16)  Tim Green (tpg16)
 defmodule Pl do
+
   def start(com_pid, index) do
     # start the PL by binding the PL component to the COM it is working for.
     send com_pid, { :pl_com_bind, self() }
@@ -17,6 +18,7 @@ defmodule Pl do
 
   # start listening for send/deliver requests
   def listen(pl_list, index, com_pid) do
+    # start listening for send requests
     receive do
       { :pl_send, recipient_index } ->
         recipient = Enum.at(pl_list, recipient_index)
