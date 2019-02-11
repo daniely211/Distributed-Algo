@@ -5,79 +5,57 @@ defmodule Broadcast2 do
     args = for arg <- System.argv, do: String.to_integer(arg)
     version = Enum.at(args, 0)
     num_peers = Enum.at(args, 1)
-    # Broad cast spawns all the peers
-    peers = Enum.map(0..num_peers-1, fn x -> spawn(Peer, :start, [x, num_peers, self()]) end)
-    # Perfect link
-    pl_list = List.duplicate(0, num_peers)
-    bind_all_pl(num_peers, pl_list)
-  
-    # This is PL connection
-    if version == 1 do
-      IO.puts "Broadcast2 version 1"
-      Enum.map(peers, fn(peer) ->
-        send peer, { :broadcast, 1000, 3000}
-      end) 
-    end
 
-    if version == 2 do
-      IO.puts "Broadcast1 version 2"
-      Enum.map(peers, fn(peer) ->
-        send peer, { :broadcast, 10_000_000, 3000}
-      end)
-    end
-    
-    
+    # spawn peers
+    peers = Enum.map(0..num_peers - 1, fn x ->
+      spawn(Peer, :start, [x, num_peers, self()])
+    end)
+
+    connect(version, peers, num_peers)
   end
-
-  defp bind_all_pl(binds_left, pl_list) do
-    if binds_left > 0 do
-      receive do
-        {:bind_pl, pl_pid, index} ->
-        new_pl_list = List.update_at(pl_list, index, fn _x -> pl_pid end)
-        bind_all_pl(binds_left - 1, new_pl_list)
-      end
-    else
-      # after receiving all the bind messages, it will pass the pl_list to all the PL so they know each other.
-      Enum.map(pl_list, fn pl -> send pl, {:bind, pl_list} end)
-    end
-  end
-
 
   def main_net do
     args = for arg <- System.argv, do: String.to_integer(arg)
     version = Enum.at(args, 0)
-    num_peers = 5
+    num_peers = Enum.at(args, 1)
 
-    p0 = Node.spawn(:'peer0@peer0.localdomain', Peer, :start, [0, num_peers, self()])
-    p1 = Node.spawn(:'peer1@peer1.localdomain', Peer, :start, [1, num_peers, self()])
-    p2 = Node.spawn(:'peer2@peer2.localdomain', Peer, :start, [2, num_peers, self()])
-    p3 = Node.spawn(:'peer3@peer3.localdomain', Peer, :start, [3, num_peers, self()])
-    p4 = Node.spawn(:'peer4@peer4.localdomain', Peer, :start, [4, num_peers, self()])
-
-    # peers = Enum.map(0.. num_peers-1, fn x -> Node.spawn(:'peer' <> x <> '@peer'<> x <> '.localdomain', Peer, :start, [x, num_peers]) end)
-
-    peers = [p0, p1, p2, p3, p4]
-    # Perfect link
-    pl_list = List.duplicate(0, num_peers)
-    bind_all_pl(num_peers, pl_list)
-    Enum.map(peers, fn(peer) ->
-      send peer, { :peers, peers }
+    # spawn peers
+    peers = Enum.map(0.. num_peers - 1, fn x ->
+      Node.spawn(:'peer#{x}@peer#{x}.localdomain', Peer, :start, [x, num_peers, self()])
     end)
 
-    if version == 1 do
-      IO.puts "Broadcast2 version 1"
-      Enum.map(peers, fn(peer) ->
-        send peer, { :broadcast, 1000, 3000}
-      end)
-    end
-
-    if version == 2 do
-      IO.puts "Broadcast2 version 2"
-      Enum.map(peers, fn(peer) ->
-        send peer, { :broadcast, 10_000_000, 3000}
-      end)
-    end
-
+    connect(version, peers, num_peers)
   end
 
+  defp connect(version, peers, num_peers) do
+    pl_list = List.duplicate(0, num_peers)
+    bind_pl_together(num_peers, pl_list)
+
+    cond do
+      version == 1 ->
+        IO.puts "Broadcast2 version 1"
+        Enum.map(peers, fn(peer) ->
+          send peer, { :broadcast, 1000, 3000 }
+        end)
+      version == 2 ->
+        IO.puts "Broadcast2 version 2"
+        Enum.map(peers, fn(peer) ->
+          send peer, { :broadcast, 10_000_000, 3000 }
+        end)
+    end
+  end
+
+  defp bind_pl_together(binds_left, pl_list) do
+    if binds_left > 0 do
+      receive do
+        { :bind_bc_pl, pl_pid, index } ->
+          new_pl_list = List.update_at(pl_list, index, fn _x -> pl_pid end)
+          bind_pl_together(binds_left - 1, new_pl_list)
+      end
+    else
+      # after receiving all the bind messages, it will pass the pl_list to all
+      # the PLs so they know each other
+      Enum.map(pl_list, fn pl -> send pl, { :bind_all_pl, pl_list } end)
+    end
+  end
 end

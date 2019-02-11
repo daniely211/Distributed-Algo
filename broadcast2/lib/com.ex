@@ -1,26 +1,27 @@
 # Daniel Yung (lty16)  Tim Green (tpg16)
 defmodule Com do
+  # Coms only job is to repeatedly tell PL to send messages to other PLs
 
-  # Com only has the number of peers in the system, but PL has the PL list.
-  # Com only job is to repeatedly tell PL to send msg to other PL.
+  # wait for a bind message for the pl
   def start(index, num_peers) do
+    receive do
+      { :pl_com_bind, pl_pid } -> listen_instruction(pl_pid, num_peers, index)
+    end
+  end
+
+  # wait for a broadcast message
+  def listen_instruction(pl_pid, num_peers, index) do
     sent = List.duplicate(0, num_peers)
     received = List.duplicate(0, num_peers)
-    # Wait for a bind message for the pl 
-    receive do
-      {:pl_bind, pl_pid} -> listen_instruction(pl_pid, num_peers, index, sent, received)
-    end
-  end
-  
 
-  def listen_instruction(pl_pid, num_peers, index, sent, received) do
     receive do
       { :broadcast, max_broadcasts, timeout } ->
-        Process.send_after(self(), {:timeout}, timeout)
-        broadcast(num_peers, pl_pid, max_broadcasts, 1, index, 0, timeout, sent, received)
+        Process.send_after(self(), { :timeout }, timeout)
+        broadcast(num_peers, pl_pid, max_broadcasts, index, sent, received)
     end
   end
 
+  # print the current status
   defp print_message(string, sent, received, cnt) do
     if cnt < length(sent) do
       str = string <> "{#{inspect Enum.at(sent, cnt)}, #{inspect Enum.at(received, cnt)}},"
@@ -31,49 +32,33 @@ defmodule Com do
     end
   end
 
-
-  defp broadcast(num_peers, pl_pid, max_broadcast, num_broadcast, self_index, recipient_index, timeout, sent, received) do
-    # broadcast needs to be in a send and receive loop
-    # pid = self()
+  # send broadcast messages to PL
+  defp broadcast(num_peers, pl_pid, max_broadcasts, self_index, sent, received) do
     receive do
-      {:timeout} -> print_message("Peer #{self_index}:", sent, received, 0)
-    after 
+      { :timeout } -> print_message("Peer #{self_index}:", sent, received, 0)
+    after
       0 ->
-      if recipient_index > num_peers - 1 do
-        # you have sent to all your peers increment the boradcast by 1
-        if num_broadcast + 1 > max_broadcast do
-          # sent enough broadcast to everyone! TIME TO STOP
-          print_message("Peer #{self_index}:", sent, received, 0)
+        if max_broadcasts <= 0 do
+          # if broadcasting finished, just listen for new messages
+          listen(num_peers, pl_pid, max_broadcasts, self_index, sent, received)
         else
-          broadcast(num_peers, pl_pid, max_broadcast, num_broadcast + 1, self_index, 0, timeout, sent, received)
+          Enum.map(0..num_peers - 1, fn index -> send pl_pid, { :pl_send, index } end)
+          new_sent = Enum.map(sent, fn x -> x + 1 end)
+          listen(num_peers, pl_pid, max_broadcasts - 1, self_index, new_sent, received)
         end
-      else
-        # IO.puts "Sending a message to PL! #{inspect pid}, #{inspect pl_pid}" 
-        send pl_pid, {:pl_send, recipient_index} # send the message to the recipient
-        new_sent = List.update_at(sent, recipient_index, fn x -> x + 1 end)
-        listen(num_peers, pl_pid, max_broadcast, num_broadcast, self_index, recipient_index + 1, timeout, new_sent, received)
-      end
     end
   end
 
-
-  defp listen(num_peers, pl_pid, max_broadcast, num_broadcast, self_index, recipient_index, timeout, sent, received) do
-    # pid = self()
+  # listen for timeout and
+  defp listen(num_peers, pl_pid, max_broadcasts, self_index, sent, received) do
     receive do
-    { :received, sender_index} ->
-      # IO.puts "received a message from a peer! #{inspect pid}"
-      # Received a message from sender
-      new_received = List.update_at(received, sender_index, fn x -> x + 1 end)
-      broadcast(num_peers, pl_pid, max_broadcast, num_broadcast, self_index, recipient_index, timeout, sent, new_received)
-    after 
-      timeout ->
-      print_message("Peer #{self_index}:", sent, received, 0)
+      { :received, sender_index } ->
+        # Received a message from sender
+        new_received = List.update_at(received, sender_index, fn x -> x + 1 end)
+        broadcast(num_peers, pl_pid, max_broadcasts, self_index, sent, new_received)
+      { :timeout } -> print_message("Peer #{self_index}:", sent, received, 0)
+    after
+      0 -> broadcast(num_peers, pl_pid, max_broadcasts, self_index, sent, received)
     end
   end
-
-
-
-
-
-
 end
