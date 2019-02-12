@@ -1,3 +1,4 @@
+# Daniel Yung (lty16)  Tim Green (tpg16)
 
 # distributed algorithms, n.dulay, 25 jan 19
 # coursework 1, broadcast algorithms

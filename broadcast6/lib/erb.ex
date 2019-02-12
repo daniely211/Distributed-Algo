@@ -1,3 +1,5 @@
+# Daniel Yung (lty16)  Tim Green (tpg16)
+
 defmodule Erb do
   def start(up_stream_pid) do
     send up_stream_pid, {:erb_bind, self()}

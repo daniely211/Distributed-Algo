@@ -1,3 +1,4 @@
+# Daniel Yung (lty16)  Tim Green (tpg16)
 defmodule Beb do
   def start(up_stream_pid, num_peers) do
     send up_stream_pid, { :bind_beb_com, self() }
