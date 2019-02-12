@@ -44,7 +44,7 @@ defmodule Com do
         listen(erb_pid, max_broadcasts, self_index, sent, received, seq_num)
       else
         # Tell ERB to broadcast!
-        send erb_pid, { :rb_broadcast, self(), seq_num }
+        send erb_pid, { :rb_broadcast, self_index, seq_num }
         # Update the sent list since we send a beb broadcast, we increase sent for all the peers
         new_sent = Enum.map(sent, fn x -> x + 1 end)
         listen(erb_pid, max_broadcasts - 1, self_index, new_sent, received, seq_num + 1)

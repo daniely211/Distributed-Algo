@@ -4,7 +4,7 @@
 # coursework 1, broadcast algorithms
 # Makefile, v2
 
-RELIABILITY = 100
+RELIABILITY = 1
 PEERS = 5
 
 # call main (for non-docker single node), main_net (for docker), main_ssh (for lan ssh)

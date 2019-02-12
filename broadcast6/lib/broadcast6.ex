@@ -13,7 +13,7 @@ defmodule Broadcast6 do
 
     IO.puts "Broadcast6 reliability: #{reliability}"
     Enum.map(peers, fn(peer) ->
-      send peer, { :broadcast, 1000, 3000 }
+      send peer, { :broadcast, 5000, 3000 }
     end)
   end
 
