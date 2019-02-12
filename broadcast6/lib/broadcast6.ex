@@ -41,7 +41,7 @@ defmodule Broadcast6 do
     if binds_left > 0 do
       receive do
         { :bind_lpl, lpl_pid, index } ->
-        new_lpl_list = List.update_at(lpl_list, index, fn x -> lpl_pid end)
+        new_lpl_list = List.update_at(lpl_list, index, fn _x -> lpl_pid end)
         bind_all_pl(binds_left - 1, new_lpl_list)
       end
     else

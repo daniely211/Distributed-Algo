@@ -18,9 +18,8 @@ defmodule Erb do
       { :rb_broadcast, message_pid, seq_num } ->
         send beb_pid, { :beb_broadcast, { :rb_data, { message_pid, seq_num } } }
         listen(beb_pid, up_stream_pid, delivered)
-
       { :beb_deliver, sender_index, { :rb_data, { message_pid, seq_num } = message } } ->
-        if (message in delivered) do
+        if ({ message_pid, seq_num } in delivered) do
           listen(beb_pid, up_stream_pid, delivered)
         else
           send up_stream_pid, { :rb_deliver, sender_index }

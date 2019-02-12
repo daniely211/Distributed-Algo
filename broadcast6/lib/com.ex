@@ -13,7 +13,8 @@ defmodule Com do
   def listen_instruction(erb_pid, self_index, sent, received) do
     receive do
       { :broadcast, max_broadcasts, timeout } ->
-        broadcast(erb_pid, max_broadcasts, 1, self_index, timeout, sent, received, 0)
+        Process.send_after(self(), { :timeout },  timeout)
+        broadcast(erb_pid, max_broadcasts, self_index, sent, received, 0)
       { :kill } ->
         print_message("Peer #{self_index}:", sent, received, 0)
         Process.exit(self(), :kill)
@@ -39,14 +40,14 @@ defmodule Com do
         Process.exit(self(), :kill)
     after 0 ->
       if max_broadcasts <= 0 do
-        # this case we will keep listening after we are done broadcasting... because we will send more than we listen
+        # this case we will keep listening after we are done broadcasting because we will send more than we listen
         listen(erb_pid, max_broadcasts, self_index, sent, received, seq_num)
       else
-        # Tell Beb to broadcast!
+        # Tell ERB to broadcast!
         send erb_pid, { :rb_broadcast, self(), seq_num }
         # Update the sent list since we send a beb broadcast, we increase sent for all the peers
         new_sent = Enum.map(sent, fn x -> x + 1 end)
-        listen(erb_pid, max_broadcasts - 1, self_index, new_sent, received, seq_num)
+        listen(erb_pid, max_broadcasts - 1, self_index, new_sent, received, seq_num + 1)
       end
     end
   end
@@ -56,9 +57,10 @@ defmodule Com do
     receive do
       { :rb_deliver, sender_index} ->
         # received a message from downstream
+        # IO.puts "COM GOT MESSAGE"
         new_received = List.update_at(received, sender_index, fn x -> x + 1 end)
         # broadcast again
-        broadcast(erb_pid, max_broadcasts, self_index, sent, new_received, seq_num + 1)
+        broadcast(erb_pid, max_broadcasts, self_index, sent, new_received, seq_num)
       { :timeout } -> print_message("Peer #{self_index}:", sent, received, 0)
       { :kill } ->
         print_message("Peer #{self_index}:", sent, received, 0)
