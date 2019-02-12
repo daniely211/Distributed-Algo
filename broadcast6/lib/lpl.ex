@@ -30,7 +30,6 @@ defmodule Lpl do
 
       { :pl_deliver, sender_index, message } ->
         # forward the message to com
-        # IO.puts "I GOT A MESSAGE! IN PL"
         send up_stream_pid, { :pl_deliver, sender_index, message }
         listen(lpl_list, self_index, up_stream_pid, reliability)
     end

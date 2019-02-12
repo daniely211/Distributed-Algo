@@ -55,8 +55,7 @@ defmodule Com do
     # listen once, then send another broadcast.
     receive do
       { :rb_deliver, sender_index} ->
-        # IO.puts "received a message from a peer! #{inspect pid}"
-        # Received a message from downstream
+        # received a message from downstream
         new_received = List.update_at(received, sender_index, fn x -> x + 1 end)
         # broadcast again
         broadcast(erb_pid, max_broadcasts, self_index, sent, new_received, seq_num + 1)

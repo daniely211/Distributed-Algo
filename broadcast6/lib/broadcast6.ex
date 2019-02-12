@@ -5,7 +5,8 @@ defmodule Broadcast6 do
     args = for arg <- System.argv, do: String.to_integer(arg)
     version = Enum.at(args, 0)
     num_peers = Enum.at(args, 1)
-    peers = Enum.map(0..num_peers-1, fn x -> spawn(Peer, :start, [x, num_peers, self()]) end)
+    peers = Enum.map(0..num_peers - 1, fn x -> spawn(Peer, :start, [x, num_peers, self()]) end)
+
     pl_list = List.duplicate(0, num_peers)
     bind_all_pl(num_peers, pl_list)
 

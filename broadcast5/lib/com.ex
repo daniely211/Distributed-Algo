@@ -67,6 +67,7 @@ defmodule Com do
         new_received = List.update_at(received, sender_index, fn x -> x + 1 end)
         # broadcast again
         broadcast(beb_pid, max_broadcasts, self_index, sent, new_received)
+
       { :timeout } -> print_message("Peer #{self_index}:", sent, received, 0)
       { :kill } ->
         print_message("Peer #{self_index}:", sent, received, 0)

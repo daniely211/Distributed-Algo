@@ -18,6 +18,7 @@ defmodule Beb do
         # send PL a broadcast request (aka send a message to all the peers)
         Enum.map(0..num_peers - 1 , fn i -> send pl_pid, { :pl_send, i } end)
         listen(up_stream_pid, num_peers, pl_pid)
+
       { :pl_deliver, sender_index } ->
         send up_stream_pid, { :beb_deliver, sender_index }
         listen(up_stream_pid, num_peers, pl_pid)
