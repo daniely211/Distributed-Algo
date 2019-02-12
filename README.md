@@ -19,7 +19,7 @@ Variables in the Makefile:
 - `RELIABILITY` specifies the reliability of the messages sent
 - `PEERS` refers to the number of peers spawned in the system.
 
-To make changes to the `max_broadcasts` and `timeout`, go to the `broadcast{n}.ex` file and change the numbers in the Peer spawning loop:
+To make changes to the `max_broadcasts` and `timeout`, go to the `broadcast{n}.ex` file and change the numbers in the broadcast message sending loop:
 
 ```elixir
 Enum.map(peers, fn(peer) ->
