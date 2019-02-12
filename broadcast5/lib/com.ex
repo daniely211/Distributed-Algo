@@ -1,8 +1,7 @@
 # Daniel Yung (lty16)  Tim Green (tpg16)
 defmodule Com do
+  # Coms only job is to repeatedly tell PL to send messages to other PLs
 
-  # Com only has the number of peers in the system, but PL has the PL list.
-  # Com only job is to repeatedly tell PL to send msg to other PL.
   def start(self_index, num_peers) do
     sent = List.duplicate(0, num_peers)
     received = List.duplicate(0, num_peers)
