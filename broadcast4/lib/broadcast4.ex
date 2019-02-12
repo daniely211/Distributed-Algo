@@ -14,8 +14,9 @@ defmodule Broadcast4 do
     pl_list = List.duplicate(0, num_peers)
     bind_pl_together(num_peers, pl_list)
 
+    IO.puts "Broadcast4 reliability: #{reliability}"
     Enum.map(peers, fn peer ->
-      send peer, { :broadcast, 1000, 0 }
+      send peer, { :broadcast, 1000, 3000 }
     end)
   end
 
@@ -32,6 +33,7 @@ defmodule Broadcast4 do
     pl_list = List.duplicate(0, num_peers)
     bind_pl_together(num_peers, pl_list)
 
+    IO.puts "Broadcast4 reliability: #{reliability}"
     Enum.map(peers, fn peer ->
       send peer, { :broadcast, 1000, 3000 }
     end)

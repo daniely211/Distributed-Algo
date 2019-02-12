@@ -4,7 +4,7 @@
 # coursework 1, broadcast algorithms
 # Makefile, v2
 
-VERSION = 1
+RELIABILITY = 50
 PEERS = 5
 
 # call main (for non-docker single node), main_net (for docker), main_ssh (for lan ssh)
@@ -15,9 +15,9 @@ MAIN_SSH = Broadcast6.main_ssh
 PROJECT  = da347
 NETWORK  = $(PROJECT)_network
 
-LOCAL	 = mix run --no-halt -e $(MAIN) $(VERSION) $(PEERS)
-COMPOSE  = MAIN=$(MAIN_NET) VERSION=$(VERSION) PEERS=$(PEERS) docker-compose -p $(PROJECT)
-SSH      = MAIN=$(MAIN_SSH) VERSION=$(VERSION) PEERS=$(PEERS)
+LOCAL	 = mix run --no-halt -e $(MAIN) $(RELIABILITY) $(PEERS)
+COMPOSE  = MAIN=$(MAIN_NET) RELIABILITY=$(RELIABILITY) PEERS=$(PEERS) docker-compose -p $(PROJECT)
+SSH      = MAIN=$(MAIN_SSH) RELIABILITY=$(RELIABILITY) PEERS=$(PEERS)
 
 # non-docker compile and run
 compile:
@@ -29,14 +29,6 @@ run:
 
 clean:
 	mix clean
-
-runall:
-	make run VERSION=1
-	make run VERSION=2
-	make run VERSION=3
-	make run VERSION=4
-	make run VERSION=5
-	make run VERSION=6
 
 # docker compile and run
 dcompile dockercompile:
