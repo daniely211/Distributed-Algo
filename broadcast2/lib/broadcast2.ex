@@ -41,14 +41,12 @@ defmodule Broadcast2 do
         IO.puts "Broadcast2 version 2"
         Enum.map(peers, fn(peer) ->
           send peer, { :broadcast, 10_000_000, 3000 }
-          # (428445+1198+2151+1622+1985) = 435,401
-      end)
+        end)
       version == 3 ->
-      IO.puts "Broadcast2 version 3"
-      Enum.map(peers, fn(peer) ->
-        send peer, { :broadcast, 10_000_000, 1500 }
-        # (350+246996+2252667+784+16783) = 181,341
-      end)
+        IO.puts "Broadcast2 version 3"
+        Enum.map(peers, fn(peer) ->
+          send peer, { :broadcast, 10_000_000, 1500 }
+        end)
     end
   end
 
