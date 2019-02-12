@@ -5,7 +5,7 @@ defmodule Com do
   def start(self_index, num_peers) do
     # Wait for a bind message from beb
     receive do
-      { :beb_bind, beb_pid } -> listen_instruction(beb_pid, self_index, num_peers)
+      { :bind_beb_com, beb_pid } -> listen_instruction(beb_pid, self_index, num_peers)
     end
   end
 

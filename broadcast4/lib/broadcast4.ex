@@ -50,7 +50,7 @@ defmodule Broadcast4 do
   defp bind_pl_together(binds_left, lpl_list) do
     if binds_left > 0 do
       receive do
-        { :bind_lpl, lpl_pid, index } ->
+        { :bind_bc_lpl, lpl_pid, index } ->
           new_lpl_list = List.update_at(lpl_list, index, fn _x -> lpl_pid end)
           bind_pl_together(binds_left - 1, new_lpl_list)
       end

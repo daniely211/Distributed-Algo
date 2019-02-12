@@ -8,7 +8,7 @@ defmodule Peer do
     lpl_pid = spawn(Lpl, :start, [beb_pid, self_index, reliability])
 
     # Peer must also send Broadcast the the PL pid
-    send network, { :bind_lpl, lpl_pid, self_index }
+    send network, { :bind_bc_lpl, lpl_pid, self_index }
     listen(com_pid)
   end
 

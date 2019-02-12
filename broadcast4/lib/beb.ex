@@ -2,13 +2,13 @@
 
 defmodule Beb do
   def start(up_stream_pid, num_peers) do
-    send up_stream_pid, { :beb_bind, self() }
+    send up_stream_pid, { :bind_beb_com, self() }
     bind_PL(up_stream_pid, num_peers)
   end
 
   defp bind_PL(up_stream_pid, num_peers) do
     receive do
-      { :lpl_bind, pl_pid } -> listen(up_stream_pid, num_peers, pl_pid)
+      { :bind_lpl_beb, pl_pid } -> listen(up_stream_pid, num_peers, pl_pid)
     end
   end
 

@@ -3,7 +3,7 @@ defmodule Lpl do
 
   def start(up_stream_pid, index, reliability) do
     # start the PL by binding the PL component to the COM it is working for.
-    send up_stream_pid, { :lpl_bind, self() }
+    send up_stream_pid, { :bind_lpl_beb, self() }
     # listen for the bind message from Broadcast4 to bind the pl tgt
     listen_bind(index, up_stream_pid, reliability)
   end
