@@ -5,7 +5,7 @@ defmodule Peer do
   def start(self_index, num_peers, network) do
     # when peer start, it will create its Com and PL component
     com_pid = spawn(Com, :start, [self_index, num_peers])
-    pl_pid = spawn(Pl, :start, [com_pid, index])
+    pl_pid = spawn(Pl, :start, [com_pid, self_index])
 
     # send PL info to network so it can inform all other PLs
     send network, { :bind_bc_pl, pl_pid, self_index }

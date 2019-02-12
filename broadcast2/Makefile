@@ -4,7 +4,7 @@
 # coursework 1, broadcast algorithms
 # Makefile, v2
 
-VERSION = 2
+VERSION = 3
 PEERS = 5
 
 # call main (for non-docker single node), main_net (for docker), main_ssh (for lan ssh)
@@ -34,9 +34,6 @@ runall:
 	make run VERSION=1
 	make run VERSION=2
 	make run VERSION=3
-	make run VERSION=4
-	make run VERSION=5
-	make run VERSION=6
 
 # docker compile and run
 dcompile dockercompile:
