@@ -30,11 +30,6 @@ run:
 clean:
 	mix clean
 
-runall:
-	make run VERSION=1
-	make run VERSION=2
-	make run VERSION=3
-
 # docker compile and run
 dcompile dockercompile:
 	mix clean
