@@ -8,7 +8,6 @@ Variables in the make file:
 - `PEERS` refers to the number of peers spawned in the system.
 
 Commands:
-- `make runall` will run all 3 version of the implementation locally.
 - `make up` will run the version declared in the make file at the top in Docker environment.
 
 For Broadcast1, Broadcast2, and Broadcast3 the following applies:
