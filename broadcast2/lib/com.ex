@@ -49,7 +49,7 @@ defmodule Com do
     end
   end
 
-  # listen for timeout and
+  # listen for timeout
   defp listen(num_peers, pl_pid, max_broadcasts, self_index, sent, received) do
     receive do
       { :received, sender_index } ->
