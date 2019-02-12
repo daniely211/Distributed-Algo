@@ -16,16 +16,17 @@ defmodule Erb do
     # ERB will take the message number and send it down stream where it will wrap it with the peer's index in lpl
     receive do
       { :rb_broadcast, message_pid, seq_num } ->
-        # IO.puts "SENDING A MESSAGE! IN ERB"
-        send beb_pid, {:beb_broadcast, {:rb_data, {message_pid, seq_num}} }
+        send beb_pid, { :beb_broadcast, { :rb_data, { message_pid, seq_num } } }
         listen(beb_pid, up_stream_pid, delivered)
-      { :beb_deliver, sender_index, {:rb_data, { message_pid, seq_num } = message} } ->
-        # IO.puts "I GOT A MESSAGE! IN ERB"
-        if ({ message_pid, seq_num } in delivered) do
+
+      { :beb_deliver, sender_index, { :rb_data, { message_pid, seq_num } = message } } ->
+        if (message in delivered) do
           listen(beb_pid, up_stream_pid, delivered)
         else
           send up_stream_pid, { :rb_deliver, sender_index }
           send beb_pid, { :beb_broadcast, message }
+
+          # recurse and save the delivered message
           listen(beb_pid, up_stream_pid, MapSet.put(delivered, { message_pid, seq_num }))
         end
     end

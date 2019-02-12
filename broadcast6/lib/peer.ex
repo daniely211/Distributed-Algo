@@ -23,5 +23,4 @@ defmodule Peer do
       { :broadcast, msg_num, timeout } -> send com_pid, { :broadcast, msg_num, timeout }
     end
   end
-
 end

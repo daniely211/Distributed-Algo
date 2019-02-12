@@ -15,7 +15,7 @@ defmodule Broadcast4 do
     bind_pl_together(num_peers, pl_list)
 
     Enum.map(peers, fn peer ->
-      send peer, { :broadcast, 1000, 0}
+      send peer, { :broadcast, 1000, 0 }
     end)
   end
 
@@ -33,7 +33,7 @@ defmodule Broadcast4 do
     bind_pl_together(num_peers, pl_list)
 
     Enum.map(peers, fn peer ->
-      send peer, { :broadcast, 1000, 3000}
+      send peer, { :broadcast, 1000, 3000 }
     end)
   end
 
